@@ -9,7 +9,7 @@ namespace Tests.MongoDbIntegrationTests
 		private readonly MongoDbRunner _mongoDbRunner = MongoDbRunner.Start();
 		private readonly DatabaseContext _databaseContext;
 
-		public IntegrationTestsBase()
+		protected IntegrationTestsBase()
 		{
 			_databaseContext = new DatabaseContext(_mongoDbRunner.ConnectionString);
 		}
