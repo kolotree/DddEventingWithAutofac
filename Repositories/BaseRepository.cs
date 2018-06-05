@@ -7,23 +7,31 @@ namespace Repositories
 {
 	public abstract class BaseRepository<T> where T : AggregateRoot
 	{
-		protected readonly IMongoCollection<T> MongoCollection;
-		
-		public BaseRepository(DatabaseContext databaseContext)
+		private readonly IEventDispatcher _eventDispatcher;
+		private readonly IMongoCollection<T> _mongoCollection;
+
+		protected BaseRepository(
+			DatabaseContext databaseContext,
+			IEventDispatcher eventDispatcher)
 		{
-			MongoCollection = databaseContext.GetCollectionFor<T>();
+			_eventDispatcher = eventDispatcher;
+			_mongoCollection = databaseContext.GetCollectionFor<T>();
 		}
 
-		public Maybe<T> GetBy(Id id)
-			=> MongoCollection.Find(item => item.Id == id).SingleOrDefault();
-
 		public IList<T> GetAll()
-			=> MongoCollection.AsQueryable().ToList();
+			=> _mongoCollection.AsQueryable().ToList();
 
 		public T Save(T aggregateRoot)
 		{
 			var updateOptions = new UpdateOptions { IsUpsert = true };
-			MongoCollection.ReplaceOne(item => item.Id == aggregateRoot.Id, aggregateRoot, updateOptions);
+			_mongoCollection.ReplaceOne(item => item.Id == aggregateRoot.Id, aggregateRoot, updateOptions);
+			return PurgeAllEventsFor(aggregateRoot);
+		}
+		
+		private T PurgeAllEventsFor(T aggregateRoot)
+		{
+			_eventDispatcher.DispatchAll(aggregateRoot.DomainEvents);
+			aggregateRoot.ClearEvents();
 			return aggregateRoot;
 		}
 	}

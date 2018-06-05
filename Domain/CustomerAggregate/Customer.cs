@@ -1,27 +1,29 @@
-using CSharpFunctionalExtensions;
-
 namespace Domain.CustomerAggregate
 {
 	public sealed class Customer : AggregateRoot
 	{
 		public string Name { get; }
 		public int Age { get; }
-		public Maybe<Address> MaybeBillingAddress { get; private set;}
+		public Address BillingAddress { get; private set;}
 
-		public Customer(Id id, string name, int age, Maybe<Address> maybeBillingAddress)
+		public Customer(
+			Id id,
+			string name,
+			int age,
+			Address billingAddress)
 		{
 			Id = id;
 			Name = name;
 			Age = age;
-			MaybeBillingAddress = maybeBillingAddress;
+			BillingAddress = BillingAddress;
 		}
 
-		public static Customer NewCustomerFrom(string name, int age, Maybe<Address> maybeAddress)
-			=> new Customer(Id.None, name, age, maybeAddress);
+		public static Customer NewCustomerFrom(string name, int age, Address address)
+			=> new Customer(Id.None, name, age, address);
 
-		public Customer SetBillingAddress(Address address)
+		public Customer ChangeBillingAddress(Address address)
 		{
-			MaybeBillingAddress = address;
+			BillingAddress = address;
 			return this;
 		}
 	}

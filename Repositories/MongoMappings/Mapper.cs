@@ -41,8 +41,8 @@ namespace Repositories.MongoMappings
 			{
 				map.MapProperty(m => m.Name);
 				map.MapProperty(m => m.Age);
-				map.MapProperty(m => m.MaybeBillingAddress).SetSerializer(new MaybeSerializer<Address>());
-				map.MapCreator(m => new Customer(m.Id, m.Name, m.Age, m.MaybeBillingAddress));
+				map.MapProperty(m => m.BillingAddress);
+				map.MapCreator(m => new Customer(m.Id, m.Name, m.Age, m.BillingAddress));
 			});
 		}
 	}
